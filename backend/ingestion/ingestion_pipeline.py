@@ -19,6 +19,13 @@ from .pdf_processor import PDFProcessor
 from .chunker import SemanticChunker, create_chunker
 from .backboard_client import BackboardMemoryAdapter, BackboardAPIClient, LocalMemoryStore
 
+# Profile scoring integration (optional – gracefully skipped if unavailable)
+try:
+    from backend.profile_scoring.orchestrator import update_profile_from_upload as _score_upload
+    _HAS_PROFILE_SCORING = True
+except ImportError:
+    _HAS_PROFILE_SCORING = False
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -144,7 +151,28 @@ class IngestionPipeline:
             
             self._log(f"Stored {storage_result.get('stored_count', 0)} chunks in Backboard")
             
-            # Step 5: Return success response
+            # Step 5: Profile scoring (auto-update user knowledge profile)
+            profile_update = None
+            if _HAS_PROFILE_SCORING:
+                try:
+                    self._log("Running profile scoring via Gemini…")
+                    profile_update = _score_upload(
+                        user_id=user_id,
+                        source_type=detected_type,
+                        content=processed_content,
+                    )
+                    if profile_update.get("success"):
+                        n_changed = len(
+                            profile_update.get("summary", {}).get("categories_increased", [])
+                        )
+                        self._log(f"Profile updated – {n_changed} categories changed")
+                    else:
+                        self._log(f"Profile scoring returned error: {profile_update.get('error')}")
+                except Exception as e:
+                    logger.warning(f"Profile scoring failed (non-fatal): {e}")
+                    profile_update = {"success": False, "error": str(e)}
+            
+            # Step 6: Return success response
             return {
                 "detected_input_type": detected_type,
                 "status": "success",
@@ -161,6 +189,7 @@ class IngestionPipeline:
                     "processing": processing_result,
                     "chunking": chunking_result,
                     "storage": storage_result,
+                    "profile_update": profile_update,
                 },
             }
         

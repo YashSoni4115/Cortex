@@ -35,3 +35,11 @@ next-env.d.ts
 # OS
 .DS_Store
 Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Backend test data
+backend/ingestion/test_cases/
