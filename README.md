@@ -22,34 +22,34 @@ Built for [HackCanada 2026](https://hackcanada.org).
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
+┌──────────────────────────────────────────────────────────┐
 │                    Next.js Frontend                      │
-│  ┌──────────┐  ┌──────────────┐  ┌───────────────────┐  │
-│  │BrainScene│  │ UploadPanel  │  │     ChatBot       │  │
-│  │(Three.js)│  │(GitHub/PDF)  │  │  (Gemini-powered) │  │
-│  └────┬─────┘  └──────┬───────┘  └────────┬──────────┘  │
+│  ┌──────────┐  ┌──────────────┐  ┌────────────────────┐  │
+│  │BrainScene│  │ UploadPanel  │  │     ChatBot        │  │
+│  │(Three.js)│  │(GitHub/PDF)  │  │  (Gemini-powered)  │  │
+│  └────┬─────┘  └──────┬───────┘  └────────┬───────────┘  │
 │       │               │                   │              │
-│  ┌────┴───────────────┴───────────────────┴──────────┐  │
-│  │           ProfileContext + categoryMapping          │  │
+│  ┌────┴───────────────┴───────────────────┴───────────┐  │
+│  │           ProfileContext + categoryMapping         │  │
 │  └────────────────────────┬───────────────────────────┘  │
 └───────────────────────────┼──────────────────────────────┘
                             │ REST API
 ┌───────────────────────────┼──────────────────────────────┐
-│                    FastAPI Backend                        │
+│                    FastAPI Backend                       │
 │  ┌────────────────────────┴───────────────────────────┐  │
-│  │                   /api router                       │  │
+│  │                   /api router                      │  │
 │  └──┬──────────────────────────────────────────────┬──┘  │
 │     │                                              │     │
 │  ┌──┴──────────────┐                    ┌──────────┴──┐  │
 │  │ Profile Scoring │                    │   Chatbot   │  │
-│  │  ├ orchestrator │                    │  ├ service   │  │
-│  │  ├ gemini_scorer│                    │  ├ router    │  │
-│  │  ├ profile_mgr  │                    │  └ models    │  │
+│  │  ├ orchestrator │                    │  ├ service  │  │
+│  │  ├ gemini_scorer│                    │  ├ router   │  │
+│  │  ├ profile_mgr  │                    │  └ models   │  │
 │  │  └ categories   │                    └─────────────┘  │
 │  └──┬──────────────┘                                     │
 │     │                                                    │
 │  ┌──┴──────────────┐                                     │
-│  │    Ingestion     │                                     │
+│  │    Ingestion     │                                    │
 │  │  ├ github_proc  │                                     │
 │  │  ├ pdf_proc     │                                     │
 │  │  └ text_proc    │                                     │
